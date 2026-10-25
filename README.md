@@ -1,5 +1,10 @@
 # 🕌 مواقيت الصلاة — مسجد السنة، المحمدية (معسكر)
 
+> [!TIP]
+> **🌐 الموقع مباشر الآن:** [https://steverlaabs.github.io/mawaqit-masjid-sunna/](https://steverlaabs.github.io/mawaqit-masjid-sunna/)
+
+[![الموقع مباشر](https://img.shields.io/website?url=https%3A%2F%2Fsteverlaabs.github.io%2Fmawaqit-masjid-sunna%2F&label=%D8%A7%D9%84%D9%85%D9%88%D9%82%D8%B9&style=for-the-badge)](https://steverlaabs.github.io/mawaqit-masjid-sunna/)
+
 موقع احترافي لعرض مواقيت الصلاة لمسجد السنة بمدينة المحمدية، ولاية معسكر، الجزائر.
 
 ✅ **يعمل بالكامل دون خادم** — حساب الأوقات يتم داخل متصفح الزائر بمكتبة [adhan](https://github.com/batoulapps/adhan-js) حسب إحداثيات المسجد، لذا يمكن استضافته مجاناً على **GitHub Pages** ويظل دقيقاً حتى دون إنترنت بعد أول زيارة.
