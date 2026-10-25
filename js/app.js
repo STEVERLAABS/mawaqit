@@ -107,7 +107,7 @@
     $('jumua-about').textContent =
       'جمعة المسجد: ' + SITE_CONFIG.jumua.time + ' م — ' + SITE_CONFIG.jumua.note.replace('صلاة الجمعة في مسجد السنة: ', '') + '.';
 
-    // أوقات السنن: ثلثا الليل وآخره
+    // أوقات السنن: منتصف الليل، الثلث الأخير، ووقت القيام
     const sunnah = new adhan.SunnahTimes(new adhan.PrayerTimes(
       new adhan.Coordinates(SITE_CONFIG.latitude, SITE_CONFIG.longitude),
       now,
@@ -119,7 +119,8 @@
     ));
     $('sunnah-row').innerHTML =
       '<div class="sunnah-chip"><span>منتصف الليل</span><strong>' + fmt(sunnah.middleOfTheNight) + '</strong></div>' +
-      '<div class="sunnah-chip"><span>الثلث الأخير (قيام)</span><strong>' + fmt(sunnah.lastThirdOfTheNight) + '</strong></div>';
+      '<div class="sunnah-chip"><span>الثلث الأخير (قيام)</span><strong>' + fmt(sunnah.lastThirdOfTheNight) + '</strong></div>' +
+      '<div class="sunnah-chip qiyam-chip"><span>⏳ وقت القيام — الأفضل</span><strong>من ' + fmt(sunnah.lastThirdOfTheNight) + ' حتى الفجر ' + fmt(todayTimes.fajr) + '</strong></div>';
   }
 
   /* ---------- الصلاة القادمة + العدّاد ---------- */
@@ -317,6 +318,7 @@
     if (!isAdhanUnlocked() || !todayTimes) return;
     initAdhanAudio();
     if (!adhanAudio) return;
+    checkTakbirReminder(now);
     const eff = effectivePrayerTimes(now);
     for (const key of ADHAN_PRAYERS) {
       const diff = now - eff[key];
@@ -341,6 +343,48 @@
     }
   }
 
+  /* ---------- تنبيه "الله أكبر" قبل الأذان ---------- */
+  let lastRemindedInstance = '';
+
+  function speakTakbir() {
+    if (!window.speechSynthesis) return false;
+    try {
+      const u = new SpeechSynthesisUtterance('الله أكبر');
+      u.lang = 'ar';
+      u.rate = 0.8;
+      u.pitch = 1;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function checkTakbirReminder(now) {
+    if (!SITE_CONFIG.takbir || !SITE_CONFIG.takbir.enabled) return;
+    if (!isAdhanUnlocked() || !todayTimes) return;
+    const eff = effectivePrayerTimes(now);
+    const beforeMs = (SITE_CONFIG.takbir.beforeMinutes || 5) * 60000;
+    for (const key of ADHAN_PRAYERS) {
+      const diff = now - (new Date(eff[key].getTime() - beforeMs));
+      const instance = dateKey(now) + '|remind|' + key;
+      if (diff >= 0 && diff < 30000 && lastRemindedInstance !== instance) {
+        lastRemindedInstance = instance;
+        const spoken = speakTakbir();
+        showAdhanBanner('⏳ بعد ' + SITE_CONFIG.takbir.beforeMinutes + ' دقائق: صلاة ' +
+          SITE_CONFIG.prayerNames[key] + ' — كن مستعداً' + (spoken ? ' (الله أكبر)' : ''));
+        // أخف الشريط بعد 40 ثانية إن لم يصله الأذان
+        setTimeout(function () {
+          if ($('adhan-banner').hidden === false && adhanAudio && adhanAudio.paused) {
+            hideAdhanBanner();
+          }
+        }, 40000);
+        return;
+      }
+    }
+  }
+
   function showAdhanBanner(text) {
     $('adhan-banner-text').textContent = text;
     $('adhan-banner').hidden = false;
@@ -348,6 +392,55 @@
 
   function hideAdhanBanner() {
     $('adhan-banner').hidden = true;
+  }
+
+  /* ---------- الأذكار ---------- */
+  const ADHKAR_LABELS = {
+    morning: 'أذكار الصباح',
+    evening: 'أذكار المساء',
+    sleep: 'أذكار النوم',
+    afterprayer: 'أذكار بعد الصلاة'
+  };
+  let adhkarCounts = {};
+  let adhkarCurrent = 'morning';
+
+  function renderAdhkarPanel(key) {
+    adhkarCurrent = key;
+    const panel = $('adhkar-panel');
+    panel.innerHTML = '';
+    document.querySelectorAll('#adhkar-tabs .tab-btn').forEach(function (b) {
+      const sel = b.getAttribute('data-panel') === key;
+      b.setAttribute('aria-selected', sel ? 'true' : 'false');
+      b.classList.toggle('active', sel);
+    });
+    ADHKAR[key].forEach(function (d, i) {
+      const id = key + '-' + i;
+      const cnt = Math.min(adhkarCounts[id] || 0, d.count);
+      const done = cnt >= d.count;
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'dhikr-card' + (done ? ' done' : '');
+      card.innerHTML =
+        '<p class="dhikr-text">' + d.text + '</p>' +
+        (d.note ? '<span class="dhikr-note">' + d.note + '</span>' : '') +
+        '<span class="dhikr-badge">' + (done ? '✓ ' : '') + cnt + ' / ' + d.count + '</span>';
+      card.addEventListener('click', function () {
+        const cur = adhkarCounts[id] || 0;
+        if (cur < d.count) {
+          adhkarCounts[id] = cur + 1;
+          renderAdhkarPanel(key);
+        }
+      });
+      panel.appendChild(card);
+    });
+  }
+
+  /* ---------- الاستغفار الدائم ---------- */
+  let istighfarIdx = 0;
+
+  function rotateIstighfar() {
+    istighfarIdx = (istighfarIdx + 1) % ISTIGHFAR.length;
+    $('istighfar-text').textContent = ISTIGHFAR[istighfarIdx];
   }
 
   /* ---------- التنقل بين الأشهر ---------- */
@@ -369,6 +462,12 @@
     hideAdhanBanner();
   });
 
+  document.querySelectorAll('#adhkar-tabs .tab-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      renderAdhkarPanel(b.getAttribute('data-panel'));
+    });
+  });
+
   /* ---------- الإقلاع ---------- */
   function init() {
     if (typeof adhan === 'undefined') {
@@ -383,6 +482,9 @@
     markNext();
     updateCountdown();
     refreshSoundUi();
+    renderAdhkarPanel('morning');
+    rotateIstighfar();
+    setInterval(rotateIstighfar, 6000);
     renderCalendar();
     setInterval(updateCountdown, 1000);
   }

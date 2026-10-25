@@ -85,6 +85,23 @@
       </div>
     </section>
 
+    <!-- Adhkar -->
+    <section class="adhkar-section" aria-label="الأذكار">
+      <div class="container">
+        <h2 class="section-title">الأذكار</h2>
+        <div class="adhkar-tabs" role="tablist" id="adhkar-tabs">
+          <button class="tab-btn active" role="tab" aria-selected="true" data-panel="morning" type="button">☀️ الصباح</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-panel="evening" type="button">🌙 المساء</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-panel="sleep" type="button">😴 النوم</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-panel="afterprayer" type="button">🕌 بعد الصلاة</button>
+        </div>
+        <div id="adhkar-panel" class="adhkar-panel" role="tabpanel" aria-live="polite">
+          <!-- JS fills -->
+        </div>
+        <p class="adhkar-hint">💡 اضغط على أي ذكر لعدّه — تظهر علامة ✓ عند إكمال عدد المرات</p>
+      </div>
+    </section>
+
     <!-- About -->
     <section class="about-section">
       <div class="container">
@@ -121,7 +138,13 @@
     <button class="btn btn-stop" id="stop-adhan" type="button">⏹ إيقاف الأذان</button>
   </div>
 
+  <div id="istighfar-bar" class="istighfar-bar" aria-live="polite">
+    <span class="istighfar-label">🕌 استغفار دائم</span>
+    <span class="istighfar-text" id="istighfar-text">أستغفر الله العظيم وأتوب إليه</span>
+  </div>
+
   <script src="js/adhan.umd.min.js"></script>
+  <script src="js/adhkar.js"></script>
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
 </body>
