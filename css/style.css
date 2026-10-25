@@ -755,6 +755,54 @@ body.tv-mode #tv-screen { display: block; }
   .next-prayer-card { padding: var(--space-8) var(--space-4); }
 }
 
+/* ===== Header clock (desktop) ===== */
+.header-clock {
+  display: none;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent-soft);
+  direction: ltr;
+  line-height: 1.2;
+}
+
+/* ===== Desktop layout ===== */
+@media (min-width: 1024px) {
+  .container { width: min(1240px, 92%); }
+
+  .header-clock { display: block; }
+
+  .brand-name { font-size: 2rem; }
+  .brand-icon { font-size: 2.8rem; }
+
+  .site-header { padding: var(--space-4) 0; }
+
+  .hero { padding: var(--space-12) 0 var(--space-6); }
+  .next-prayer-card { padding: var(--space-12) var(--space-12); }
+  .next-name { font-size: clamp(2.8rem, 5vw, 4rem); }
+  .next-time { font-size: clamp(2rem, 3.6vw, 3rem); }
+  .countdown-value { font-size: 1.7rem; }
+
+  .times-grid { grid-template-columns: repeat(6, 1fr); gap: var(--space-6); }
+  .prayer-card { padding: var(--space-8) var(--space-4); }
+  .prayer-time { font-size: 1.7rem; }
+  .prayer-icon { font-size: 2rem; }
+
+  .sunnah-row { grid-template-columns: repeat(3, 1fr); }
+
+  .section-title { font-size: clamp(1.8rem, 2.6vw, 2.4rem); }
+
+  .prayer-table th,
+  .prayer-table td { padding: var(--space-3) var(--space-4); font-size: 1rem; }
+
+  .adhkar-panel { grid-template-columns: repeat(3, 1fr); }
+  .dhikr-card { padding: var(--space-6); }
+
+  .about-grid { grid-template-columns: repeat(3, 1fr); }
+
+  .istighfar-text { font-size: 1.2rem; }
+}
+
 /* ===== Reduced motion ===== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
