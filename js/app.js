@@ -61,10 +61,63 @@
   /* ---------- عناصر الصفحة ---------- */
   const $ = function (id) { return document.getElementById(id); };
 
+  /* ---------- وضع التلفاز ---------- */
+  const TV_MODE = new URLSearchParams(location.search).has('tv');
+  const timeFmtSec = new Intl.DateTimeFormat('fr-DZ', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: TZ
+  });
+
+  function buildTvTimes() {
+    const wrap = $('tv-times');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    PRAYER_KEYS.forEach(function (key) {
+      const div = document.createElement('div');
+      div.className = 'tv-prayer';
+      div.id = 'tv-card-' + key;
+      div.innerHTML =
+        '<span class="tv-prayer-name">' + SITE_CONFIG.prayerNames[key] + '</span>' +
+        '<span class="tv-prayer-time" id="tv-time-' + key + '">—</span>';
+      wrap.appendChild(div);
+    });
+  }
+
+  function updateTvTimes() {
+    if (!TV_MODE || !todayTimes) return;
+    const isFriday = weekdayFmt.format(new Date()) === 'الجمعة';
+    PRAYER_KEYS.forEach(function (key) {
+      const el = $('tv-time-' + key);
+      if (!el) return;
+      if (key === 'dhuhr' && isFriday && SITE_CONFIG.jumua) {
+        el.textContent = SITE_CONFIG.jumua.time + ' (جمعة)';
+      } else {
+        el.textContent = fmt(todayTimes[key]);
+      }
+    });
+    $('tv-jumua').textContent = '🕌 ' + SITE_CONFIG.jumua.note;
+  }
+
+  function updateTvLive(now, next, diff) {
+    if (!TV_MODE) return;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    $('tv-clock').textContent = timeFmtSec.format(now);
+    $('tv-next-name').textContent = next.name + (next.isTomorrow ? ' (غداً)' : '');
+    $('tv-next-time').textContent = fmt(next.time);
+    $('tv-countdown').textContent =
+      String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  }
+
   function renderHeader() {
     const now = new Date();
     $('date-hijri').textContent = hijriFmt.format(now) + ' هـ';
     $('date-gregorian').textContent = gregFmt.format(now);
+    const tvH = $('tv-date-hijri');
+    if (tvH) {
+      tvH.textContent = hijriFmt.format(now) + ' هـ';
+      $('tv-date-greg').textContent = gregFmt.format(now);
+    }
   }
 
   /* ---------- مواقيت اليوم ---------- */
@@ -121,6 +174,7 @@
       '<div class="sunnah-chip"><span>منتصف الليل</span><strong>' + fmt(sunnah.middleOfTheNight) + '</strong></div>' +
       '<div class="sunnah-chip"><span>الثلث الأخير (قيام)</span><strong>' + fmt(sunnah.lastThirdOfTheNight) + '</strong></div>' +
       '<div class="sunnah-chip qiyam-chip"><span>⏳ وقت القيام — الأفضل</span><strong>من ' + fmt(sunnah.lastThirdOfTheNight) + ' حتى الفجر ' + fmt(todayTimes.fajr) + '</strong></div>';
+    updateTvTimes();
   }
 
   /* ---------- الصلاة القادمة + العدّاد ---------- */
@@ -166,6 +220,7 @@
     $('next-prayer-time').textContent = fmt(next.time);
     $('countdown').textContent =
       String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    updateTvLive(now, next, diff);
     checkAdhan(now);
   }
 
@@ -183,6 +238,22 @@
       for (const key of order) {
         if (todayTimes[key] <= now) {
           $('card-' + key).classList.add('current');
+          break;
+        }
+      }
+    }
+    // بطاقات التلفاز
+    document.querySelectorAll('.tv-prayer').forEach(function (c) {
+      c.classList.remove('current', 'next-flash');
+    });
+    const tvCard = $('tv-card-' + next.key);
+    if (tvCard) {
+      tvCard.classList.add('next-flash');
+      const order2 = ['isha', 'maghrib', 'asr', 'dhuhr', 'sunrise', 'fajr'];
+      for (const key of order2) {
+        if (todayTimes[key] <= now) {
+          const el = $('tv-card-' + key);
+          if (el) el.classList.add('current');
           break;
         }
       }
@@ -487,6 +558,17 @@
     setInterval(rotateIstighfar, 6000);
     renderCalendar();
     setInterval(updateCountdown, 1000);
+    if (TV_MODE) {
+      document.body.classList.add('tv-mode');
+      buildTvTimes();
+      updateTvTimes();
+      // نقل زر تفعيل الأذان ليظهر في وضع التلفاز
+      const soundRow = document.querySelector('.sound-row');
+      if (soundRow && !isAdhanUnlocked()) {
+        soundRow.classList.add('tv-fixed');
+        document.body.appendChild(soundRow);
+      }
+    }
   }
 
   if (document.readyState === 'loading') {

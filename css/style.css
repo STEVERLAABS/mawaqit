@@ -588,6 +588,150 @@ body {
   background: var(--color-highlight-bg);
 }
 
+/* ===== TV mode ===== */
+#tv-screen { display: none; }
+
+body.tv-mode { padding-bottom: 0; }
+
+body.tv-mode .hero,
+body.tv-mode .times-section,
+body.tv-mode .calendar-section,
+body.tv-mode .adhkar-section,
+body.tv-mode .about-section,
+body.tv-mode .site-footer,
+body.tv-mode .istighfar-bar,
+body.tv-mode .date-block { display: none; }
+
+body.tv-mode #tv-screen { display: block; }
+
+.tv-wrap {
+  min-height: calc(100vh - 88px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.tv-dates p { margin: 0; }
+.tv-hijri {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 3.2vw, 2.2rem);
+  color: var(--color-highlight);
+}
+.tv-greg {
+  font-size: clamp(0.95rem, 2vw, 1.3rem);
+  color: var(--color-text-muted);
+}
+
+.tv-clock {
+  font-size: clamp(4.5rem, 15vw, 11rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--cream-50);
+  line-height: 1.05;
+  direction: ltr;
+  letter-spacing: 0.04em;
+}
+
+.tv-next-label {
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+  letter-spacing: 0.08em;
+  color: var(--color-highlight);
+}
+
+.tv-next-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 8vw, 6rem);
+  color: var(--color-accent);
+  line-height: 1.2;
+}
+
+.tv-next-time {
+  font-size: clamp(1.6rem, 4.5vw, 3.2rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tv-countdown {
+  display: inline-block;
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-8);
+  background: rgba(7, 28, 18, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 999px;
+  font-size: clamp(1.6rem, 5vw, 3.4rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent-soft);
+  direction: ltr;
+}
+
+.tv-times {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-3);
+  width: min(1500px, 96%);
+}
+
+.tv-prayer {
+  padding: var(--space-4) var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid rgba(127, 201, 163, 0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.tv-prayer.current {
+  background: linear-gradient(160deg, var(--green-700), var(--green-800));
+  border-color: rgba(212, 175, 55, 0.5);
+}
+
+.tv-prayer.next-flash {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-glow);
+}
+
+.tv-prayer-name {
+  font-weight: 700;
+  font-size: clamp(0.95rem, 2.2vw, 1.5rem);
+  color: var(--color-accent-soft);
+}
+
+.tv-prayer-time {
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tv-jumua {
+  font-weight: 600;
+  font-size: clamp(0.95rem, 2vw, 1.3rem);
+  color: var(--color-accent-soft);
+}
+
+.tv-link { margin-top: var(--space-3); }
+
+.sound-row.tv-fixed {
+  position: fixed;
+  bottom: 4.5rem;
+  inset-inline-start: 1rem;
+  z-index: 70;
+  opacity: 0.45;
+  align-items: flex-start;
+}
+
+.sound-row.tv-fixed:hover { opacity: 1; }
+.sound-row.tv-fixed .sound-hint { display: none; }
+
+@media (max-width: 700px) {
+  .tv-times { grid-template-columns: repeat(3, 1fr); }
+}
+
 /* ===== Toast ===== */
 .toast {
   position: fixed;
