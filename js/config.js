@@ -14,8 +14,14 @@ const SITE_CONFIG = {
   // منهج الحساب: رابطة العالم الإسلامي (المعتمد في الجزائر)
   calculationMethod: 'MuslimWorldLeague',
 
-  // مذهب الأصرّ: 'shafi' (القياس) أو 'hanafi'
-  madhab: 'shafi',
+  // مذهب الأصرّ: 'maliki' (قياس ظل شيء — المالكي والشافعي) أو 'hanafi' (ظل مثلهين)
+  madhab: 'maliki',
+
+  // صوت الأذان عند دخول وقت الصلاة (يعمل بعد تفعيله مرة واحدة)
+  adhan: {
+    file: 'assets/adhan.mp3',
+    volume: 0.9
+  },
 
   // توقيت صلاة الجمعة (عدّله عند الحاجة) — تُعرض مكان صلاة الظهر يوم الجمعة
   jumua: {
@@ -28,7 +34,7 @@ const SITE_CONFIG = {
     fajr: 'الفجر',
     sunrise: 'الشروق',
     dhuhr: 'الظهر',
-    asr: 'الأصرّ',
+    asr: 'العصر',
     maghrib: 'المغرب',
     isha: 'العشاء'
   },

@@ -42,6 +42,10 @@
             <span class="countdown-label">يتبقى</span>
             <span class="countdown-value" id="countdown">--:--:--</span>
           </div>
+          <div class="sound-row">
+            <button class="btn sound-btn" id="enable-sound" type="button" hidden>🔊 تفعيل صوت الأذان</button>
+            <p class="sound-hint" id="sound-hint">اضغط الزر مرة واحدة لتسمع الأذان عند كل صلاة</p>
+          </div>
         </div>
       </div>
     </section>
@@ -88,7 +92,7 @@
         <div class="about-grid">
           <div class="about-card">
             <h3>حساب دقيق</h3>
-            <p>المواقيت محسوبة محلياً حسب إحداثيات المسجد (35.5896° شمالاً، 0.0740° شرقاً) بمنهج رابطة العالم الإسلامي، والأصرّ على المذهب الشافعي.</p>
+            <p>المواقيت محسوبة محلياً حسب إحداثيات المسجد (35.5896° شمالاً، 0.0740° شرقاً) بمنهج رابطة العالم الإسلامي، وصلاة العصر على المذهب المالكي (قياس ظل الشيء).</p>
           </div>
           <div class="about-card">
             <h3>يعمل دائماً</h3>
@@ -111,6 +115,11 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <div id="adhan-banner" class="adhan-banner" role="alert" hidden>
+    <span class="adhan-banner-text" id="adhan-banner-text">🕌</span>
+    <button class="btn btn-stop" id="stop-adhan" type="button">⏹ إيقاف الأذان</button>
+  </div>
 
   <script src="js/adhan.umd.min.js"></script>
   <script src="js/config.js"></script>

@@ -406,6 +406,60 @@ body {
   margin-top: var(--space-1);
 }
 
+/* ===== Sound / adhan ===== */
+.sound-row {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sound-btn {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent-soft);
+  font-size: 1rem;
+  padding: var(--space-3) var(--space-8);
+  border-radius: 999px;
+}
+
+.sound-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.adhan-banner {
+  position: fixed;
+  top: var(--space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: min(92vw, 560px);
+  padding: var(--space-3) var(--space-6);
+  background: linear-gradient(160deg, var(--green-800), var(--green-900));
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.adhan-banner[hidden] { display: none; }
+
+.adhan-banner-text {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-accent-soft);
+}
+
+.btn-stop {
+  border-color: rgba(255, 120, 120, 0.6);
+}
+
 /* ===== Toast ===== */
 .toast {
   position: fixed;

@@ -47,6 +47,7 @@
   function timesFor(date) {
     const coords = new adhan.Coordinates(SITE_CONFIG.latitude, SITE_CONFIG.longitude);
     const params = adhan.CalculationMethod[SITE_CONFIG.calculationMethod]();
+    // المالكي والشافعي: قياس ظل الشيء (Shafi) — الحنفي: ظل مثلهين
     params.madhab = SITE_CONFIG.madhab === 'hanafi' ? adhan.Madhab.Hanafi : adhan.Madhab.Shafi;
     const t = new adhan.PrayerTimes(coords, date, params);
     return {
@@ -164,6 +165,7 @@
     $('next-prayer-time').textContent = fmt(next.time);
     $('countdown').textContent =
       String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    checkAdhan(now);
   }
 
   function markNext() {
@@ -252,6 +254,102 @@
     toastTimer = setTimeout(function () { t.hidden = true; }, 2200);
   }
 
+  /* ---------- صوت الأذان ---------- */
+  const ADHAN_UNLOCKED = 'adhan-unlocked';
+  const ADHAN_PRAYERS = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  let adhanAudio = null;
+  let lastFiredInstance = '';
+
+  function isAdhanUnlocked() {
+    try { return localStorage.getItem(ADHAN_UNLOCKED) === '1'; }
+    catch (e) { return false; }
+  }
+
+  function refreshSoundUi() {
+    const btn = $('enable-sound');
+    const hint = $('sound-hint');
+    if (isAdhanUnlocked()) {
+      btn.hidden = true;
+      hint.textContent = '🔊 الأذان مفعّل — سيُسمع عند دخول كل صلاة';
+    } else {
+      btn.hidden = false;
+      hint.textContent = 'اضغط الزر مرة واحدة لتسمع الأذان عند كل صلاة';
+    }
+  }
+
+  function initAdhanAudio() {
+    if (adhanAudio || !(window.Audio || window.webkitAudio)) return;
+    adhanAudio = new Audio(SITE_CONFIG.adhan.file);
+    adhanAudio.volume = typeof SITE_CONFIG.adhan.volume === 'number' ? SITE_CONFIG.adhan.volume : 0.9;
+    adhanAudio.addEventListener('ended', hideAdhanBanner);
+    adhanAudio.addEventListener('error', hideAdhanBanner);
+  }
+
+  function unlockAdhan() {
+    initAdhanAudio();
+    if (!adhanAudio) { showToast('المتصفح لا يدعم الصوت'); return; }
+    const p = adhanAudio.play();
+    if (p && p.then) {
+      p.then(function () {
+        // فُتح باب الصوت — أوقف فوراً وأخزّن التفعيل
+        adhanAudio.pause();
+        adhanAudio.currentTime = 0;
+        try { localStorage.setItem(ADHAN_UNLOCKED, '1'); } catch (e) {}
+        refreshSoundUi();
+        showToast('✅ تم تفعيل صوت الأذان');
+      }, function () {
+        showToast('تعذّر تفعيل الصوت — أعد المحاولة');
+      });
+    }
+  }
+
+  /** أوقات اليوم بعد استبدال الظهر بوقت الجمعة يوم الجمعة */
+  function effectivePrayerTimes(now) {
+    const t = Object.assign({}, todayTimes);
+    if (weekdayFmt.format(now) === 'الجمعة' && SITE_CONFIG.jumua) {
+      const parts = SITE_CONFIG.jumua.time.split(':');
+      t.dhuhr = atTime(now, parseInt(parts[0], 10), parseInt(parts[1], 10));
+    }
+    return t;
+  }
+
+  function checkAdhan(now) {
+    if (!isAdhanUnlocked() || !todayTimes) return;
+    initAdhanAudio();
+    if (!adhanAudio) return;
+    const eff = effectivePrayerTimes(now);
+    for (const key of ADHAN_PRAYERS) {
+      const diff = now - eff[key];
+      const instance = dateKey(now) + '|' + key;
+      if (diff >= 0 && diff < 30000 && lastFiredInstance !== instance) {
+        lastFiredInstance = instance;
+        fireAdhan(SITE_CONFIG.prayerNames[key]);
+        return;
+      }
+    }
+  }
+
+  function fireAdhan(prayerName) {
+    showAdhanBanner('🕌 حان الآن وقت صلاة ' + prayerName + ' — الله أكبر');
+    const p = adhanAudio.play();
+    if (p && p.catch) {
+      p.catch(function () {
+        // السياسة منعت الصوت — اطلب التفعيل من جديد
+        try { localStorage.removeItem(ADHAN_UNLOCKED); } catch (e) {}
+        refreshSoundUi();
+      });
+    }
+  }
+
+  function showAdhanBanner(text) {
+    $('adhan-banner-text').textContent = text;
+    $('adhan-banner').hidden = false;
+  }
+
+  function hideAdhanBanner() {
+    $('adhan-banner').hidden = true;
+  }
+
   /* ---------- التنقل بين الأشهر ---------- */
   $('prev-month').addEventListener('click', function () {
     viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1);
@@ -260,6 +358,15 @@
   $('next-month').addEventListener('click', function () {
     viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
     renderCalendar();
+  });
+
+  $('enable-sound').addEventListener('click', unlockAdhan);
+  $('stop-adhan').addEventListener('click', function () {
+    if (adhanAudio) {
+      adhanAudio.pause();
+      adhanAudio.currentTime = 0;
+    }
+    hideAdhanBanner();
   });
 
   /* ---------- الإقلاع ---------- */
@@ -275,6 +382,7 @@
     renderToday();
     markNext();
     updateCountdown();
+    refreshSoundUi();
     renderCalendar();
     setInterval(updateCountdown, 1000);
   }
