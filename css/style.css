@@ -738,6 +738,26 @@ body.tv-mode #tv-screen { display: block; }
   color: var(--color-accent-soft);
 }
 
+.tv-ramadan {
+  font-weight: 700;
+  font-size: clamp(0.8rem, 2.2vh, 1.5rem);
+  color: var(--color-highlight);
+}
+
+.ramadan-chip {
+  margin: var(--space-4) auto 0;
+  width: fit-content;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-highlight);
+  background: var(--color-highlight-bg);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-6);
+}
+
+.ramadan-chip[hidden] { display: none; }
+
 .tv-link { margin-top: var(--space-3); }
 
 .sound-row.tv-fixed {

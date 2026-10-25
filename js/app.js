@@ -23,6 +23,77 @@
   const weekdayFmt = new Intl.DateTimeFormat('ar-DZ', { weekday: 'long', timeZone: TZ });
   const dayNumFmt = new Intl.DateTimeFormat('ar-DZ', { day: 'numeric', month: 'numeric', timeZone: TZ });
 
+  /* ---------- عدّاد رمضان (محسوب من تقويم أم القرى) ---------- */
+  const hijriNumFmt = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn', {
+    day: 'numeric', month: 'numeric', year: 'numeric', timeZone: TZ
+  });
+  const DAY_MS = 86400000;
+
+  function hijriParts(date) {
+    const parts = hijriNumFmt.formatToParts(date);
+    const get = function (type) {
+      const p = parts.find(function (x) { return x.type === type; });
+      return parseInt(p.value, 10);
+    };
+    return { d: get('day'), m: get('month'), y: get('year') };
+  }
+
+  /** يبحث عن أول 1 رمضان قادم — نمشي 20 يوماً ثم نضبط بيوم واحد */
+  function findRamadanStart() {
+    const now = new Date();
+    let t = now.getTime();
+    let h = hijriParts(new Date(t));
+    // رمضان جارٍ الآن
+    if (h.m === 9) return { active: true, year: h.y, day: h.d };
+    const limit = now.getTime() + 430 * DAY_MS;
+    while (t < limit) {
+      t += 20 * DAY_MS;
+      h = hijriParts(new Date(t));
+      if (h.m === 9) break;
+      if (h.m > 9) { // تجاوزنا رمضان — نرجع ونمشي يوماً بيوم
+        t -= 20 * DAY_MS;
+        while (hijriParts(new Date(t)).m !== 9) t += DAY_MS;
+        break;
+      }
+    }
+    // نضبط على اليوم الأول من الشهر
+    while (hijriParts(new Date(t)).d !== 1) t -= DAY_MS;
+    return { time: t, active: false, year: hijriParts(new Date(t)).y };
+  }
+
+  let ramadanInfo = null;
+
+  function updateRamadan() {
+    const el = $('ramadan-chip');
+    const tvEl = $('tv-ramadan');
+    if (!el && !tvEl) return;
+    const now = new Date();
+    if (!ramadanInfo) ramadanInfo = findRamadanStart();
+    if (ramadanInfo.active) {
+      const text = '🌙 رمضان مبارك — اليوم ' + ramadanInfo.day + ' من رمضان ' + ramadanInfo.year + ' هـ';
+      if (el) { el.textContent = text; el.hidden = false; }
+      if (tvEl) tvEl.textContent = text;
+      return;
+    }
+    // إذا مضى موعد البداية المخزّن نعيد الحساب (سنة جديدة)
+    if (ramadanInfo.time && ramadanInfo.time < now.getTime() - DAY_MS) {
+      ramadanInfo = findRamadanStart();
+      if (ramadanInfo.active) {
+        const text = '🌙 رمضان مبارك — اليوم ' + ramadanInfo.day + ' من رمضان ' + ramadanInfo.year + ' هـ';
+        if (el) { el.textContent = text; el.hidden = false; }
+        if (tvEl) tvEl.textContent = text;
+        return;
+      }
+    }
+    const days = Math.ceil((ramadanInfo.time - now.getTime()) / DAY_MS);
+    const startStr = new Intl.DateTimeFormat('ar-DZ', {
+      day: 'numeric', month: 'long', year: 'numeric', timeZone: TZ
+    }).format(new Date(ramadanInfo.time));
+    const text = '🌙 تبقى ' + days + ' يوماً على رمضان ' + ramadanInfo.year + ' هـ — بإذن الله ' + startStr;
+    if (el) { el.textContent = text; el.hidden = false; }
+    if (tvEl) tvEl.textContent = text;
+  }
+
   /** يرجع "HH:MM" في توقيت المسجد من كائن تاريخ */
   function fmt(date) {
     return timeFmt.format(date);
@@ -267,6 +338,7 @@
     updateTvLive(now, next, diff);
     const headerClock = $('header-clock');
     if (headerClock) headerClock.textContent = timeFmtSec.format(now);
+    updateRamadan();
     checkAdhan(now);
   }
 
