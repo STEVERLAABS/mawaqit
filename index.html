@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="مواقيت الصلاة لمسجد السنة - مدينة المحمدية، ولاية معسكر، الجزائر. أوقات الصلاة الدقيقة محسوبة حسب إحداثيات المسجد.">
+  <meta name="theme-color" content="#0d2b1d">
+  <title>مواقيت الصلاة | مسجد السنة - المحمدية، معسكر</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">🕌</span>
+        <div class="brand-text">
+          <h1 class="brand-name">مسجد السنة</h1>
+          <p class="brand-sub">المحمدية — ولاية معسكر، الجزائر</p>
+        </div>
+      </div>
+      <div class="date-block">
+        <p class="date-hijri" id="date-hijri" aria-live="polite">—</p>
+        <p class="date-gregorian" id="date-gregorian">—</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Next prayer hero -->
+    <section class="hero" aria-label="الصلاة القادمة">
+      <div class="container">
+        <div class="next-prayer-card">
+          <p class="next-label">الصلاة القادمة</p>
+          <h2 class="next-name" id="next-prayer-name">—</h2>
+          <p class="next-time" id="next-prayer-time">—</p>
+          <div class="countdown" role="timer" aria-live="off">
+            <span class="countdown-label">يتبقى</span>
+            <span class="countdown-value" id="countdown">--:--:--</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Today's times -->
+    <section class="times-section" aria-label="مواقيت اليوم">
+      <div class="container">
+        <h2 class="section-title">مواقيت اليوم</h2>
+        <div class="times-grid" id="times-grid">
+          <!-- JS fills -->
+        </div>
+        <div class="sunnah-row" id="sunnah-row">
+          <!-- JS fills: middle of night / last third -->
+        </div>
+        <p class="jumua-note" id="jumua-note">—</p>
+      </div>
+    </section>
+
+    <!-- Monthly calendar -->
+    <section class="calendar-section" aria-label="جدول الشهر">
+      <div class="container">
+        <div class="calendar-head">
+          <h2 class="section-title">جدول مواقيت الشهر</h2>
+          <div class="month-nav">
+            <button class="btn" id="prev-month" type="button" aria-label="الشهر السابق">‹ السابق</button>
+            <span class="month-label" id="month-label">—</span>
+            <button class="btn" id="next-month" type="button" aria-label="الشهر التالي">التالي ›</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="prayer-table" id="prayer-table">
+            <thead id="table-head"></thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+        <p class="table-note">جميع الأوقات بتوقيت المحمدية (غرينتش+1). اضغط على أي صف لنسخ أوقاته.</p>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="about-section">
+      <div class="container">
+        <h2 class="section-title">عن الموقع</h2>
+        <div class="about-grid">
+          <div class="about-card">
+            <h3>حساب دقيق</h3>
+            <p>المواقيت محسوبة محلياً حسب إحداثيات المسجد (35.5896° شمالاً، 0.0740° شرقاً) بمنهج رابطة العالم الإسلامي، والأصرّ على المذهب الشافعي.</p>
+          </div>
+          <div class="about-card">
+            <h3>يعمل دائماً</h3>
+            <p>الحساب يتم داخل متصفحك دون الحاجة لأي خدمة خارجية، لذا يبقى الموقع دقيقاً حتى دون إنترنت بعد أول زيارة.</p>
+          </div>
+          <div class="about-card">
+            <h3>توقيت الجمعة</h3>
+            <p id="jumua-about">—</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>🕌 مسجد السنة — المحمدية، ولاية معسكر 29000</p>
+      <p class="footer-small">الأوقات تقريبية للتذكير؛ اعتمد أذان المسجد الرسمي</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="js/adhan.umd.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
