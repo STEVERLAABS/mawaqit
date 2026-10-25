@@ -85,6 +85,7 @@
       soundRow.classList.add('tv-fixed');
       document.body.appendChild(soundRow);
     }
+    refreshTvFsButton();
   }
 
   function deactivateTv() {
@@ -100,6 +101,14 @@
     if (document.fullscreenElement && document.exitFullscreen) {
       document.exitFullscreen();
     }
+    refreshTvFsButton();
+  }
+
+  function refreshTvFsButton() {
+    const btn = $('tv-fs');
+    if (!btn) return;
+    // يظهر زر ملء الشاشة فقط عندما نكون في وضع التلفاز وليس في ملء الشاشة
+    btn.hidden = !(isTv() && !document.fullscreenElement);
   }
 
   function buildTvTimes() {
@@ -584,9 +593,20 @@
       const p = el.requestFullscreen();
       if (p && p.catch) p.catch(function () {});
     }
+    refreshTvFsButton();
+  });
+
+  $('tv-fs').addEventListener('click', function () {
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+      const p = el.requestFullscreen();
+      if (p && p.catch) p.catch(function () {});
+    }
   });
 
   $('tv-exit').addEventListener('click', deactivateTv);
+
+  document.addEventListener('fullscreenchange', refreshTvFsButton);
 
   /* ---------- الإقلاع ---------- */
   function init() {
