@@ -67,6 +67,41 @@
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: TZ
   });
 
+  function isTv() { return document.body.classList.contains('tv-mode'); }
+
+  let tvActivated = false;
+  let soundRowHome = null;
+
+  function activateTv() {
+    if (tvActivated) return;
+    tvActivated = true;
+    document.body.classList.add('tv-mode');
+    buildTvTimes();
+    updateTvTimes();
+    // نقل زر تفعيل الأذان ليظهر في وضع التلفاز
+    const soundRow = document.querySelector('.sound-row');
+    if (soundRow && !isAdhanUnlocked()) {
+      soundRowHome = soundRow.parentNode;
+      soundRow.classList.add('tv-fixed');
+      document.body.appendChild(soundRow);
+    }
+  }
+
+  function deactivateTv() {
+    document.body.classList.remove('tv-mode');
+    if (soundRowHome) {
+      const soundRow = document.querySelector('.sound-row');
+      if (soundRow) {
+        soundRow.classList.remove('tv-fixed');
+        soundRowHome.appendChild(soundRow);
+      }
+      soundRowHome = null;
+    }
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+
   function buildTvTimes() {
     const wrap = $('tv-times');
     if (!wrap) return;
@@ -83,7 +118,7 @@
   }
 
   function updateTvTimes() {
-    if (!TV_MODE || !todayTimes) return;
+    if (!isTv() || !todayTimes) return;
     const isFriday = weekdayFmt.format(new Date()) === 'الجمعة';
     PRAYER_KEYS.forEach(function (key) {
       const el = $('tv-time-' + key);
@@ -98,7 +133,7 @@
   }
 
   function updateTvLive(now, next, diff) {
-    if (!TV_MODE) return;
+    if (!isTv()) return;
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
@@ -541,6 +576,18 @@
     });
   });
 
+  $('tv-btn').addEventListener('click', function () {
+    activateTv();
+    // ملء الشاشة: يظهر الموقع وحده — يتطلب إيماءة من المستخدم
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+      const p = el.requestFullscreen();
+      if (p && p.catch) p.catch(function () {});
+    }
+  });
+
+  $('tv-exit').addEventListener('click', deactivateTv);
+
   /* ---------- الإقلاع ---------- */
   function init() {
     if (typeof adhan === 'undefined') {
@@ -561,15 +608,7 @@
     renderCalendar();
     setInterval(updateCountdown, 1000);
     if (TV_MODE) {
-      document.body.classList.add('tv-mode');
-      buildTvTimes();
-      updateTvTimes();
-      // نقل زر تفعيل الأذان ليظهر في وضع التلفاز
-      const soundRow = document.querySelector('.sound-row');
-      if (soundRow && !isAdhanUnlocked()) {
-        soundRow.classList.add('tv-fixed');
-        document.body.appendChild(soundRow);
-      }
+      activateTv();
     }
   }
 

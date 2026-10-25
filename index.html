@@ -148,11 +148,13 @@
     <div class="container footer-inner">
       <p>🕌 مسجد السنة — المحمدية، ولاية معسكر 29000</p>
       <p class="footer-small">الأوقات تقريبية للتذكير؛ اعتمد أذان المسجد الرسمي</p>
-      <a class="btn tv-link" href="?tv=1">📺 وضع العرض على التلفاز</a>
+      <button class="btn tv-link" id="tv-btn" type="button">📺 وضع العرض على التلفاز</button>
     </div>
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <button id="tv-exit" class="tv-exit" type="button" title="إنهاء وضع العرض" aria-label="إنهاء وضع العرض">✕</button>
 
   <div id="adhan-banner" class="adhan-banner" role="alert" hidden>
     <span class="adhan-banner-text" id="adhan-banner-text">🕌</span>
